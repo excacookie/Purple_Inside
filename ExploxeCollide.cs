@@ -2,14 +2,28 @@
 using InventorySystem;
 using InventorySystem.Items.ThrowableProjectiles;
 using LabApi.Features.Wrappers;
+using MEC;
+using UnityEngine;
 using Utils;
+using ThrowableItem = InventorySystem.Items.ThrowableProjectiles.ThrowableItem;
 
 namespace Magic
 {
     internal class ExploxeCollide : MonoBehaviour
     {
         #region Properties & Variables
+        public static Action<Vector3, Footprint> DefaultExplsoion = (pos, attacker) =>
+        {
+            if (InventoryItemLoader.TryGetItem<ThrowableItem>(ItemType.GrenadeHE, out var result) && Instantiate(result.Projectile) is TimeGrenade timeGrenade)
+            {
+                timeGrenade.Position = pos;
+                timeGrenade.PreviousOwner = attacker;
+                timeGrenade.ServerFuseEnd();
+            }
+        };
+        
         public Footprint Attacker;
+        public Action<Vector3, Footprint> OnExplode = DefaultExplsoion;
         #endregion
 
         #region Methods
@@ -21,28 +35,35 @@ namespace Magic
 
         public void OnCollisionEnter(Collision collision)
         {
-            Logger.Info("collisition de la boule avec un mur");
+            if (!enabled) return;
 
-            // Code
-            if (InventoryItemLoader.TryGetItem<InventorySystem.Items.ThrowableProjectiles.ThrowableItem>(ItemType.GrenadeHE, out var result) && UnityEngine.Object.Instantiate(result.Projectile) is TimeGrenade timeGrenade)
+            Logger.Info("collisition de la boule avec un mur");
+            var pos = transform.position; // store after destroy we can't access tranform
+            Destroy(gameObject);
+            enabled = false;
+#if DEBUG
+            Timing.CallDelayed(0.1f, () =>
             {
-                ExplosionUtils.ServerSpawnEffect(transform.position, ItemType.GrenadeHE);
-                timeGrenade.Position = transform.position;
-                timeGrenade.PreviousOwner = Attacker;
-                timeGrenade.ServerFuseEnd();
-                var ballexplosion=PrimitiveObjectToy.Create(transform.position);
+                var ballexplosion=PrimitiveObjectToy.Create(pos);
                 ballexplosion.Type = PrimitiveType.Sphere;
                 ballexplosion.Color = Color.yellow;
-                enabled = false;
-                Destroy(gameObject);
 
-            }
+                Timing.CallDelayed(3f, () =>
+                {
+                    Destroy(ballexplosion.GameObject);
+                });
+            });
+#endif
+            Timing.CallDelayed(Timing.WaitForOneFrame, () =>
+            {
+                ExplosionUtils.ServerSpawnEffect(pos, ItemType.GrenadeHE);
+                OnExplode(pos, Attacker);
+            });
         }
 
         public void Start()
         {
-            Logger.Info("start");
-            if (Attacker.Equals(default(Footprint)))
+            if (Attacker.Equals(default))
             {
                 if (!ReferenceHub.TryGetHostHub(out var owner))
                 {
