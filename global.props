@@ -1,0 +1,47 @@
+<Project>
+	<PropertyGroup>
+		<OutputPath>$(MSBuildThisFileDirectory)\bin\$(Configuration)\</OutputPath>
+	</PropertyGroup>
+
+	<Target Name="GeneratedMetaDataClass" BeforeTargets="BeforeCompile;CoreCompile" Inputs="$(MSBuildAllProjects)" Outputs="$(IntermediateOutputPath)GeneratedMetaDataClass.cs">
+			<PropertyGroup>
+				<PluginGuid Condition="'$(PluginGuid)' == ''">$(AssemblyName)</PluginGuid>
+				<PluginName Condition="'$(PluginName)' == ''">$(Product)</PluginName>
+				<PluginAuthors Condition="'$(PluginAuthors)' == ''">$(Authors)</PluginAuthors>
+				<PluginVersion Condition="'$(PluginVersion)' == ''">$(Version)</PluginVersion>
+				<PluginDescription Condition="'$(PluginDescription)' == ''">$(Description)</PluginDescription>
+
+				<GeneratedMetaDataClass>
+					<![CDATA[
+global using global::System%3B
+global using global::System.Diagnostics%3B
+global using global::HarmonyLib%3B
+global using global::System.Collections.Generic%3B
+global using global::System.Linq%3B
+global using global::UnityEngine%3B
+global using Logger = LabApi.Features.Console.Logger%3B
+
+namespace $(RootNamespace)%3B
+
+internal static class PluginInfo
+{
+	public const string PLUGIN_GUID = "$(PluginGuid)"%3B
+	public const string PLUGIN_NAME = "$(PluginName)"%3B
+	public const string PLUGIN_AUTHORS = "$(PluginAuthors)"%3B
+	public const string PLUGIN_VERSION = "$(PluginVersion)"%3B
+	public const string PLUGIN_DESCRIPTION = "$(PluginDescription)"%3B
+}
+		]]>
+			</GeneratedMetaDataClass>
+			<GeneratedFilePath>$(IntermediateOutputPath)PluginInfo.cs</GeneratedFilePath>
+		</PropertyGroup>
+
+		<ItemGroup>
+			<Compile Include="$(GeneratedFilePath)" />
+			<FileWrites Include="$(GeneratedFilePath)" />
+		</ItemGroup>
+
+		<WriteLinesToFile Lines="$(GeneratedMetaDataClass)" File="$(GeneratedFilePath)" WriteOnlyWhenDifferent="true" Overwrite="true" />
+	</Target>
+
+</Project>

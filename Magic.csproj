@@ -4,14 +4,19 @@
         <TargetFramework>net48</TargetFramework>
         <OutputType>Library</OutputType>
 
+		<Authors>Excacookie</Authors>
+		<Description>Add magie to SCP SL !</Description>
+		
         <LangVersion>12.0</LangVersion>
         <Platforms>AnyCPU</Platforms>
         <Nullable>enable</Nullable>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-
-        <AssemblyName>HelloWorldPlugin-Custom</AssemblyName>
-        <RootNamespace>HelloWorldPlugin</RootNamespace>
+        <AssemblyName>Magic</AssemblyName>
+        <RootNamespace>Magic</RootNamespace>
     </PropertyGroup>
+    <ItemGroup>
+      <PackageReference Include="Lib.Harmony" Version="2.4.1" />
+    </ItemGroup>
 
     <ItemGroup>
         <Reference Include="Assembly-CSharp" HintPath="$(SL_REFERENCES)\Assembly-CSharp.dll" />
@@ -24,5 +29,6 @@
 		<Reference Include="UnityEngine.CoreModule" HintPath="$(SL_REFERENCES)\UnityEngine.CoreModule.dll" />
     </ItemGroup>
 
-    
+	<Import Project=".\global.props" />
+
 </Project>
