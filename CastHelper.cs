@@ -16,8 +16,10 @@ namespace Magic;
 
 public static class CastHelper
 {
-    public static Color FireBallColor = new Color(1, 0, 0, 0.5f);
-    public static Color FireBallLightColor = new Color(0.75f, 0.5f, 0, 0.5f);
+    public static Color FireBallColor = new Color(1, 0, 0, 1f);
+    public static Color FireBallLightColor = new Color(1f, 0f, 0, 0.5f);
+    public static Color ExplosiveBallColor = new Color(1, 0, 0, 0.5f);
+    public static Color ExplosiveBallLightColor = new Color(0.75f, 0.5f, 0, 0.5f);
 
     /// <summary>
     /// Spawn a fire ball and move until coliding.
@@ -29,12 +31,13 @@ public static class CastHelper
     /// The player casting the fire ball, witch is the player dealing damage.
     /// If <see langword="null"/> the host will be use instade.
     /// </param>
-    public static void FireBall(Vector3 origine, Vector3 direction, float speed = 1, ReferenceHub? caster = null)
+
+    public static void FireBall(Vector3 origine, Vector3 direction, float speed = 10, ReferenceHub? caster = null)
     {
         var ball = PrimitiveObjectToy.Create(origine, networkSpawn: false);
         ball.Type = PrimitiveType.Sphere;
-        ball.Color = FireBallColor;
-        //ball.MovementSmoothing = byte.MaxValue; // BUGGED :) 
+        ball.Color = ExplosiveBallColor;
+
         ball.MovementSmoothing = 4; // Fine
         ball.GameObject.layer = LayerMask.GetMask("Grenade");
         ball.Spawn();
@@ -46,11 +49,45 @@ public static class CastHelper
         light.Spawn();
 
         var collider = ball.GameObject.AddComponent<SphereCollider>();
+        collider.radius = 0.01f;
+
+        var rigidbody = ball.GameObject.AddComponent<Rigidbody>();
+        rigidbody.useGravity = false; // Fireballs typically don't fall
+        rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous; // For fast-moving objects
+
+        var explodeScript = ball.GameObject.AddComponent<ExploxeCollide>();
+        if (caster != null)
+            explodeScript.Attacker = new(caster);
+
+        rigidbody.AddForce(direction * speed, ForceMode.VelocityChange);
+    }
+
+    public static void ExplosivBall(Vector3 origine, Vector3 direction, float speed = 10, ReferenceHub? caster = null)
+    {
+        var ball = PrimitiveObjectToy.Create(origine, networkSpawn: false);
+        ball.Type = PrimitiveType.Sphere;
+        ball.Color = ExplosiveBallColor;
+        //ball.MovementSmoothing = byte.MaxValue; // BUGGED :) 
+        ball.MovementSmoothing = 4; // Fine
+        ball.GameObject.layer = LayerMask.GetMask("Grenade");
+        ball.Spawn();
+
+        var light = LightSourceToy.Create(ball.Transform, false);
+        light.Intensity = 1;
+        light.Color = ExplosiveBallLightColor;
+        light.ShadowType = LightShadows.None;
+        light.Spawn();
+
+        var collider = ball.GameObject.AddComponent<SphereCollider>();
         collider.radius = 0.25f; // Fine
 
         var rigidbody = ball.GameObject.AddComponent<Rigidbody>();
         rigidbody.useGravity = false; // Fireballs typically don't fall
         rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous; // For fast-moving objects
+
+        var gravityScript = ball.GameObject.AddComponent<CustomGravity>();
+        gravityScript.GravityDirection = Vector3.down;
+        gravityScript.GravityStrength = 5.81f; // Ajuste comme tu veux
 
         var explodeScript = ball.GameObject.AddComponent<ExploxeCollide>();
         if (caster != null)

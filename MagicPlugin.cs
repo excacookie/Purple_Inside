@@ -39,7 +39,8 @@ internal class MagicPlugin : Plugin
         CustomHandlersManager.RegisterEventsHandler(Events);
         ServerSpecificSettingsSync.DefinedSettings = [
             new SSGroupHeader((int)SettingId.Title, "Sort"),
-            new SSKeybindSetting((int)SettingId.FireBall, "Boulle de feu", allowSpectatorTrigger: false),
+            new SSKeybindSetting((int)SettingId.FireBall,"Boule de feu",allowSpectatorTrigger: false),
+            new SSKeybindSetting((int)SettingId.ExplosiveBall, "Boule explosive", allowSpectatorTrigger: false),
             new SSKeybindSetting((int)SettingId.IceSpike, "Peak de glace", allowSpectatorTrigger: false),
             new SSKeybindSetting((int)SettingId.Heal, "Soiiin !", allowSpectatorTrigger: false),
 #if DEBUG
@@ -56,15 +57,28 @@ internal class MagicPlugin : Plugin
     {
         switch (setting.SettingId)
         {
+
+
             case (int)SettingId.FireBall:
                 if (setting is SSKeybindSetting { SyncIsPressed: true })
                 {
                     if (BusyCasting.Contains(sender)) return;
-
-                    CastHelper.FireBall(GetPositionCameraForward(sender), sender.PlayerCameraReference.forward, 2, sender);
+                    var speed = 20;
+                    CastHelper.FireBall(GetPositionCameraForward(sender), sender.PlayerCameraReference.forward, speed, sender);
                     Logger.Info($"La boule de feu de {sender.GetNickname()} à été envoyer en {GetPositionCameraForward(sender)}");
                 }
                 break;
+
+            case (int)SettingId.ExplosiveBall:
+                if (setting is SSKeybindSetting { SyncIsPressed: true })
+                {
+                    if (BusyCasting.Contains(sender)) return;
+                    var speed = 10;
+                    CastHelper.ExplosivBall(GetPositionCameraForward(sender), sender.PlayerCameraReference.forward, speed, sender);
+                    Logger.Info($"La boule explosive de {sender.GetNickname()} à été envoyer en {GetPositionCameraForward(sender)}");
+                }
+                break;
+
             case (int)SettingId.IceSpike:
                 if (setting is SSKeybindSetting { SyncIsPressed: true })
                 {
@@ -98,7 +112,7 @@ internal class MagicPlugin : Plugin
             // Confusion, le mec est blind + marche a l'envère
 
             case (int)SettingId.DebugColorInput:
-                CastHelper.FireBallLightColor = GetColorForUser(sender);
+                CastHelper.ExplosiveBallLightColor = GetColorForUser(sender);
                 _selectedColorTextArea?.SendTextUpdate(GetColorInfoForUser(sender), receiveFilter: (hub) => hub == sender) ;
                 break;
         }
@@ -134,6 +148,7 @@ enum SettingId
 {
     Title = 1,
     FireBall,
+    ExplosiveBall,
     IceSpike,
     Heal,
     DebugTitle = 50,
