@@ -14,11 +14,12 @@ namespace Magic
         #region Properties & Variables
         public static Action<Vector3, Footprint> DefaultExplsoion = (pos, attacker) =>
         {
-            if (InventoryItemLoader.TryGetItem<ThrowableItem>(ItemType.GrenadeHE, out var result) && Instantiate(result.Projectile) is TimeGrenade timeGrenade)
+            ExplosionUtils.ServerSpawnEffect(pos, ItemType.GrenadeHE);
+            if (InventoryItemLoader.TryGetItem<ThrowableItem>(ItemType.GrenadeHE, out var result) && Instantiate(result.Projectile) is ExplosionGrenade grenade)
             {
-                timeGrenade.Position = pos;
-                timeGrenade.PreviousOwner = attacker;
-                timeGrenade.ServerFuseEnd();
+                grenade.Position = pos;
+                grenade.PreviousOwner = attacker;
+                grenade.ServerFuseEnd();
             }
         };
         
@@ -56,7 +57,6 @@ namespace Magic
 #endif
             Timing.CallDelayed(Timing.WaitForOneFrame, () =>
             {
-                ExplosionUtils.ServerSpawnEffect(pos, ItemType.GrenadeHE);
                 OnExplode(pos, Attacker);
             });
         }

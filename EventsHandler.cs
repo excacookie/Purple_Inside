@@ -3,9 +3,15 @@ using LabApi.Events.CustomHandlers;
 
 namespace Magic;
 
-public class MyCustomEventsHandler : CustomEventsHandler
+public class EventsHandler : CustomEventsHandler
 {
     #region Methods
+    public override void OnPlayerDeath(PlayerDeathEventArgs ev)
+    {
+        MagicPlugin.BusyCasting.Remove(ev.Player.ReferenceHub);
+        MagicPlugin.CastingIceSpike.Remove(ev.Player.ReferenceHub);
+    }
+
     public override void OnPlayerJoined(PlayerJoinedEventArgs ev)
     {
         Logger.Info($"joueure {ev.Player.DisplayName} à rejoint le serveur!");
