@@ -6,10 +6,11 @@ namespace Magic;
 public class EventsHandler : CustomEventsHandler
 {
     #region Methods
+    // TODO
     public override void OnPlayerDeath(PlayerDeathEventArgs ev)
     {
-        MagicPlugin.BusyCasting.Remove(ev.Player.ReferenceHub);
-        MagicPlugin.CastingIceSpike.Remove(ev.Player.ReferenceHub);
+        MagicUserSettings.BusyCasting.Remove(ev.Player.ReferenceHub);
+        MagicUserSettings.CastingIceSpike.Remove(ev.Player.ReferenceHub);
     }
 
     public override void OnPlayerJoined(PlayerJoinedEventArgs ev)

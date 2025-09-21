@@ -16,6 +16,7 @@
 		<Platforms>AnyCPU</Platforms>
 		<Nullable>enable</Nullable>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='DEBUG'">
@@ -28,9 +29,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Reference Include="Assembly-CSharp" HintPath="$(SL_REFERENCES)\Assembly-CSharp.dll" />
 		<Reference Include="$(SL_REFERENCES)\LabApi.dll" />
 		<Reference Include="Assembly-CSharp-firstpass" HintPath="$(SL_REFERENCES)\Assembly-CSharp-firstpass.dll" />
+		<Reference Include="Assembly-CSharp" HintPath="Ref\Assembly-CSharp-Publicized.dll" />
 		<Reference Include="CommandSystem.Core" HintPath="$(SL_REFERENCES)\CommandSystem.Core.dll" />
 		<Reference Include="Mirror" HintPath="$(SL_REFERENCES)\Mirror.dll" />
 		<Reference Include="Pooling" HintPath="$(SL_REFERENCES)\Pooling.dll" />
