@@ -63,7 +63,7 @@ internal class MagicPlugin : Plugin
                 if (setting is SSKeybindSetting { SyncIsPressed: true })
                 {
                     if (BusyCasting.Contains(sender)) return;
-                    var speed = 20;
+                    var speed = 40;
                     CastHelper.FireBall(GetPositionCameraForward(sender), sender.PlayerCameraReference.forward, speed, sender);
                     Logger.Info($"La boule de feu de {sender.GetNickname()} à été envoyer en {GetPositionCameraForward(sender)}");
                 }
