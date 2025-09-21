@@ -38,7 +38,8 @@ public static class CastHelper
         ball.Type = PrimitiveType.Sphere;
         ball.Color = ExplosiveBallColor;
 
-        ball.MovementSmoothing = 4; // Fine
+        ball.MovementSmoothing = 128; // Fine
+
         ball.GameObject.layer = LayerMask.GetMask("Grenade");
         ball.Spawn();
 
@@ -60,6 +61,9 @@ public static class CastHelper
             explodeScript.Attacker = new(caster);
 
         rigidbody.AddForce(direction * speed, ForceMode.VelocityChange);
+
+        var lifetime = ball.GameObject.AddComponent<DestroyAfterTime>();
+        lifetime.SetDuration(5f);
     }
 
     public static void ExplosivBall(Vector3 origine, Vector3 direction, float speed = 10, ReferenceHub? caster = null)
@@ -68,7 +72,7 @@ public static class CastHelper
         ball.Type = PrimitiveType.Sphere;
         ball.Color = ExplosiveBallColor;
         //ball.MovementSmoothing = byte.MaxValue; // BUGGED :) 
-        ball.MovementSmoothing = 4; // Fine
+        ball.MovementSmoothing = 160; // Fine
         ball.GameObject.layer = LayerMask.GetMask("Grenade");
         ball.Spawn();
 
