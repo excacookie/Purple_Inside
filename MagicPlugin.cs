@@ -26,10 +26,6 @@ internal class MagicPlugin : Plugin
     public override void Enable()
     {
         CustomHandlersManager.RegisterEventsHandler(Events);
-        ServerSpecificSettingsSync.DefinedSettings = [
-
-        ];
-        ServerSpecificSettingsSync.SendToAll();
         MagicUserSettings.Register();
         ManaStat.Register();
     }

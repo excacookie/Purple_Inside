@@ -9,8 +9,6 @@ namespace Magic.Spells;
 
 public abstract class Spell
 {
-    public static Dictionary<ReferenceHub, Spell> InCasting { get; } = new Dictionary<ReferenceHub, Spell>();
-
     public Footprint Caster;
 
     /// <summary>

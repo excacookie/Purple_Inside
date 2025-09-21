@@ -1,4 +1,5 @@
 ﻿global using SpellId = uint;
+using Footprinting;
 using PlayerRoles;
 using UnityEngine;
 
@@ -22,6 +23,7 @@ public class CastSystem
     {
         PlayerRoleManager.OnRoleChanged += OnClassChanged;
         // Register<>();
+        Register<FireBallSpell>(1, 10, 2);
     }
 
     public CastSystem(ReferenceHub hub)
@@ -72,17 +74,13 @@ public class CastSystem
         mana.CurValue -= info.cost;
         SetCooldown(id, new CoolDown(info.cooldownSecond));
         Casting = info.ctor();
+        Casting.Caster = new Footprinting.Footprint(Hub);
         return true;
     }
 
     public void SetCooldown(SpellId id, CoolDown cooldown)
     {
         _coolDown[id] = cooldown;
-    }
-
-    public void Cast(Spell spell)
-    {
-        Casted.Add(spell);
     }
 
     public static Spell? GetSpell(SpellId id)
@@ -114,6 +112,8 @@ public class CastSystem
         system.ResetAllCouldown();
     }
 #endregion
+
+    
 
     public struct SpellInfo
     {
