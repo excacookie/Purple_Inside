@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CustomPlayerEffects;
+﻿using CustomPlayerEffects;
 using InventorySystem.Items.Usables;
 using InventorySystem.Items.Usables.Scp244.Hypothermia;
 using LabApi.Features.Wrappers;
-using MEC;
 using PlayerRoles;
 using PlayerStatsSystem;
-using UnityEngine;
 
 namespace Magic;
 
@@ -39,7 +32,6 @@ public static class CastHelper
         ball.Color = ExplosiveBallColor;
 
         ball.MovementSmoothing = 128; // Fine
-
         ball.GameObject.layer = LayerMask.GetMask("Grenade");
         ball.Spawn();
 
