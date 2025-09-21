@@ -377,3 +377,6 @@ JSON/
 
 # Other
 *.dll
+
+# References
+!Ref/*
