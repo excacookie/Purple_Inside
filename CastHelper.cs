@@ -2,6 +2,7 @@
 using InventorySystem.Items.Usables;
 using InventorySystem.Items.Usables.Scp244.Hypothermia;
 using LabApi.Features.Wrappers;
+using Magic.Component;
 using PlayerRoles;
 using PlayerStatsSystem;
 

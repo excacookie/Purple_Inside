@@ -9,27 +9,44 @@ namespace Magic.Spells;
 
 public abstract class Spell
 {
-    public Footprint Caster;
+    public Footprint Caster { get; private set; }
 
     /// <summary>
     /// When the player start the invokation of the spell.
     /// </summary>
-    public abstract void StartCast();
+    public virtual void StartCast(Footprint caster)
+    {
+        Caster = caster;
+        Cast();
+    }
 
     /// <summary>
     /// When the invokation is stoped other than the player stoped it.
     /// Ex: The player is dead.
     /// </summary>
-    public abstract void StopCast();
+    public virtual void StopCast()
+    {
+        InvokeDestroy();
+    }
 
     /// <summary>
     /// When the player stop the invokation.
     /// </summary>
-    public abstract void PlayerStopCast();
+    public virtual void PlayerStopCast()
+    {
+        InvokeDestroy();
+    }
 
     /// <summary>
     /// The player ended the invokation the spell is casted.
     /// </summary>
-    public abstract void Cast();
+    public virtual void Cast()
+    {
+        Casted?.Invoke();
+    }
 
+    protected void InvokeDestroy() => Destroy?.Invoke();
+
+    public event Action? Casted;
+    public event Action? Destroy;
 }

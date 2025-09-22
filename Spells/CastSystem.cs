@@ -74,7 +74,7 @@ public class CastSystem
         mana.CurValue -= info.cost;
         SetCooldown(id, new CoolDown(info.cooldownSecond));
         Casting = info.ctor();
-        Casting.Caster = new Footprinting.Footprint(Hub);
+        Casting.StartCast(new Footprint(Hub));
         return true;
     }
 
