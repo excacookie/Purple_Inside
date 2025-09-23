@@ -10,7 +10,7 @@ public static class HubExtension
     public static CastSystem GetCastSystem(this ReferenceHub hub)
     {
         if (!CastSystem.playerSystem.TryGetValue(hub, out var castSystem))
-            CastSystem.playerSystem[hub] = new CastSystem(hub);
+            castSystem = CastSystem.playerSystem[hub] = new CastSystem(hub);
         return castSystem;
 
     }
