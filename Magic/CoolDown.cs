@@ -45,7 +45,7 @@ public struct CoolDown : IEnumerator<float>
 
     public void Start()
     {
-        _coolDownTime = Timing.WaitForSeconds(_coolDownTime);
+        _coolDownTime = Timing.WaitForSeconds(Duration);
     }
 
     /// <summary>
