@@ -1,4 +1,5 @@
 ﻿using CustomPlayerEffects;
+using Magic.Spells;
 using Respawning.Objectives;
 using TMPro;
 using UserSettings.ServerSpecific;
@@ -58,8 +59,10 @@ public static class MagicUserSettings
                 if (setting is SSKeybindSetting { SyncIsPressed: true })
                 {
                     if (BusyCasting.Contains(sender)) return;
-                    var speed = 20;
-                    CastHelper.FireBall(GetPositionCameraForward(sender), sender.PlayerCameraReference.forward, speed, sender);
+                    //var speed = 20;
+                    //CastHelper.FireBall(GetPositionCameraForward(sender), sender.PlayerCameraReference.forward, speed, sender);
+                    sender.GetCastSystem().TryCast(1);
+                    
                     Logger.Info($"La boule de feu de {sender.GetNickname()} à été envoyer en {GetPositionCameraForward(sender)}");
                 }
                 break;

@@ -34,7 +34,7 @@ internal class BetterRAPlugin : Plugin
     #endregion
 }
 
-/* [HarmonyPrefix]
+ /*[HarmonyPrefix]
     [HarmonyPatch(typeof(RaPlayer), nameof(RaPlayer.ReceiveData), typeof(CommandSender), typeof(string))]
     public static bool OnRequestPlayer(CommandSender sender, string data)
     {
@@ -314,4 +314,5 @@ internal class BetterRAPlugin : Plugin
 
         return false;
     }
-}*/
+}
+ */
