@@ -28,6 +28,11 @@
 		<PackageReference Include="Lib.Harmony" Version="2.4.1" />
 	</ItemGroup>
 
+
+	<ItemGroup>
+	  <ProjectReference Include="..\BetterRA\BetterRA.csproj" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<Reference Include="$(SL_REFERENCES)\LabApi.dll" />
 		<Reference Include="Assembly-CSharp-firstpass" HintPath="$(SL_REFERENCES)\Assembly-CSharp-firstpass.dll" />

@@ -28,6 +28,25 @@ internal class MagicPlugin : Plugin
         CustomHandlersManager.RegisterEventsHandler(Events);
         MagicUserSettings.Register();
         ManaStat.Register();
+
+        CoolDown cd = new CoolDown(10);
+        Timing.CallDelayed(12, () =>
+        {
+            cd.Start();
+            Logger.Info(cd.IsActive);
+            Logger.Info(cd.CurrentCooldown);
+
+            Timing.CallDelayed(5, () =>
+            {
+                Logger.Info(cd.IsActive);
+            });
+
+            Timing.CallDelayed(12, () =>
+            {
+                Logger.Info(cd.IsActive);
+            });
+        });
+
     }
 
     public override void Disable()
