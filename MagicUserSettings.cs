@@ -12,6 +12,7 @@ public static class MagicUserSettings
     public static Dictionary<ReferenceHub, DateTime> CastingIceSpike = new();
 
     public static bool IsRegister { get; private set; } = false;
+
     private static ServerSpecificSettingBase[] _instance = [
             new SSGroupHeader((int)Id.Title, "Sort"),
             new SSKeybindSetting((int)Id.FireBall,"Boule de feu",allowSpectatorTrigger: false),
@@ -27,13 +28,16 @@ public static class MagicUserSettings
 
     private static SSTextArea? _selectedColorTextArea;
 
+
     internal static void Register()
     {
         if (IsRegister) return;
         ServerSpecificSettingsSync.DefinedSettings = ServerSpecificSettingsSync.DefinedSettings.AddRangeToArray(_instance);
+        //Logger.Info($"chuis la {ServerSpecificSettingsSync.DefinedSettings.Length}");
         ServerSpecificSettingsSync.SendToAll();
         ServerSpecificSettingsSync.ServerOnSettingValueReceived += ProcessUserInput;
         IsRegister = true;
+
     }
 
     internal static void UnRegister()
