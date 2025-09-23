@@ -13,7 +13,7 @@ public class CastSystem
 
     private Dictionary<SpellId, CoolDown> _coolDown = new ();
     
-    public Spell? Casting { get; set; }
+    public Spell? Canalise{ get; set; }
     public readonly List<Spell> Casted = new List<Spell>();
     public readonly ReferenceHub Hub;
     #endregion
@@ -47,9 +47,11 @@ public class CastSystem
     }
 
 
-    public bool TryCast(SpellId id)
+    public bool TryCast(SpellId id,out Spell? spell)
     {
-        if (Casting != null)
+        spell = null;
+
+        if (Canalise != null)
             return false;
 
         if (InCooldown(id))
@@ -61,20 +63,27 @@ public class CastSystem
 #else
             throw new Exception($"{id} is not regired.");
 #endif
-        if (Hub.playerStats.TryGetModule<ManaStat>(out var mana))
+        if (!Hub.playerStats.TryGetModule<ManaStat>(out var mana))
 #if !DEBUG
             return false;
 #else
-            throw new Exception($"new mana state module.");
+            throw new Exception($"No mana state module.");
 #endif
 
         if (mana.CurValue < info.cost)
             return false;
 
         mana.CurValue -= info.cost;
-        SetCooldown(id, new CoolDown(info.cooldownSecond));
-        Casting = info.ctor();
-        Casting.StartCast(new Footprint(Hub));
+        var cooldown = new CoolDown(info.cooldownSecond);
+        Logger.Info($"{cooldown.Duration}");
+        cooldown.Start();
+        Logger.Info($"active: {cooldown.IsActive}");
+        SetCooldown(id, cooldown);
+        Logger.Info($"Cooldown: {InCooldown(id)}");
+        Canalise = spell = info.ctor();
+        spell.Casted += OnCasted;
+        spell.Destroy += OnDestroy;
+        Canalise.StartCast(new Footprint(Hub));
         return true;
     }
 
@@ -111,6 +120,28 @@ public class CastSystem
 
         system.ResetAllCouldown();
     }
+
+    private void OnDestroy(Spell spell)
+    {
+        if (Canalise == spell)
+        {
+            Canalise = null;
+        }
+        Casted.Remove(spell);
+        spell.Destroy -= OnDestroy;
+        spell.Casted -= OnCasted;
+    }
+
+    private void OnCasted(Spell spell)
+    {
+        if (Canalise == spell)
+        {
+            Canalise = null;
+        }
+        Casted.Add(spell);
+        spell.Casted -= OnCasted;
+    }
+
 #endregion
 
     

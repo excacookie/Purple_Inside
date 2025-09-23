@@ -55,6 +55,8 @@ public class ManaStat : StatBase, IRaDisplayedStat
         ref var definedModules = ref AccessTools.StaticFieldRefAccess<PlayerStats, Type[]>(nameof(PlayerStats.DefinedModules));
         definedModules = definedModules.AddItem(typeof(ManaStat)).ToArray();
 
+        Logger.Info($"{definedModules.Length}");
+
         foreach (var hub in ReferenceHub.AllHubs)
         {
             if (hub.playerStats.StatModules.All(p => p is not ManaStat))

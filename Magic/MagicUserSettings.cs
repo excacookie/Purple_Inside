@@ -61,9 +61,17 @@ public static class MagicUserSettings
                     if (BusyCasting.Contains(sender)) return;
                     //var speed = 20;
                     //CastHelper.FireBall(GetPositionCameraForward(sender), sender.PlayerCameraReference.forward, speed, sender);
-                    sender.GetCastSystem().TryCast(1);
                     
-                    Logger.Info($"La boule de feu de {sender.GetNickname()} à été envoyer en {GetPositionCameraForward(sender)}");
+                    if (sender.GetCastSystem().TryCast(1,out _))
+                    {
+                        Logger.Info($"La boule de feu de {sender.GetNickname()} à été envoyer en {GetPositionCameraForward(sender)}");
+                    }
+                    else
+                    {
+                        Logger.Info("Le sort n'est pas parti");
+                    }
+
+                    
                 }
                 break;
 
