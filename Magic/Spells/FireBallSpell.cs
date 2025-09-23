@@ -34,6 +34,7 @@ internal class FireBallSpell : Spell
 
     public override void Cast()
     {
+        Logger.Info("ta mere la pute la boule de feu");
         var ball = PrimitiveObjectToy.Create(GetPositionCameraForward(Caster.Hub), networkSpawn: false);
         ball.Type = PrimitiveType.Sphere;
         ball.Color = FireBallColor;

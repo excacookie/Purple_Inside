@@ -42,11 +42,11 @@ public abstract class Spell
     /// </summary>
     public virtual void Cast()
     {
-        Casted?.Invoke();
+        Casted?.Invoke(this);
     }
 
-    protected void InvokeDestroy() => Destroy?.Invoke();
+    protected void InvokeDestroy() => Destroy?.Invoke(this);
 
-    public event Action? Casted;
-    public event Action? Destroy;
+    public event Action<Spell>? Casted;
+    public event Action<Spell>? Destroy;
 }
