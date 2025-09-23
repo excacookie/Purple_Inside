@@ -13,7 +13,8 @@ using VoiceChat;
 
 namespace BetterRA;
 
-public class Patchs
+[HarmonyPatch]
+public static class Patchs
 {
     [HarmonyPrefix]
     [HarmonyPatch(typeof(RaPlayer), nameof(RaPlayer.ReceiveData), typeof(CommandSender), typeof(string))]
@@ -321,7 +322,7 @@ public class Patchs
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ExternalLookupCommand), nameof(ExternalLookupCommand.Execute))]
-    public bool Execute(ExternalLookupCommand __instance, ArraySegment<string> arguments, ICommandSender sender, out string response)
+    public static bool Execute(ExternalLookupCommand __instance, ArraySegment<string> arguments, ICommandSender sender, out string response)
     {
         if (!sender.CheckPermission(PlayerPermissions.BanningUpToDay | PlayerPermissions.LongTermBanning | PlayerPermissions.SetGroup | PlayerPermissions.PlayersManagement | PlayerPermissions.PermissionsManagement | PlayerPermissions.ViewHiddenBadges | PlayerPermissions.PlayerSensitiveDataAccess | PlayerPermissions.ViewHiddenGlobalBadges, out response))
         {
