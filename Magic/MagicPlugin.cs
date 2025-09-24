@@ -28,6 +28,7 @@ internal class MagicPlugin : Plugin
         CustomHandlersManager.RegisterEventsHandler(Events);
         MagicUserSettings.Register();
         ManaStat.Register();
+        ManaShow.Register();
 
         /*CoolDown cd = new CoolDown(10);
         Timing.CallDelayed(12, () =>
@@ -57,4 +58,3 @@ internal class MagicPlugin : Plugin
     }
     #endregion
 }
-
