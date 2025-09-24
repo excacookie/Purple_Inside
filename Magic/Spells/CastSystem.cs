@@ -23,7 +23,7 @@ public class CastSystem
     {
         PlayerRoleManager.OnRoleChanged += OnClassChanged;
         // Register<>();
-        Register<FireBallSpell>(1, 3, 0.2f);
+        Register<FireBallSpell>(1, 3, 2f);
     }
 
     public CastSystem(ReferenceHub hub)
@@ -56,13 +56,14 @@ public class CastSystem
             Logger.Info("in canalise");
             return false;
         }
-            
+
 
         if (InCooldown(id))
         {
             Logger.Info("in Cooldown");
             return false;
-        }         
+        }
+        
 
         if (!spells.TryGetValue(id, out var info))
 #if !DEBUG
