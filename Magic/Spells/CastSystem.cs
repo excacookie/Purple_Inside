@@ -23,7 +23,7 @@ public class CastSystem
     {
         PlayerRoleManager.OnRoleChanged += OnClassChanged;
         // Register<>();
-        Register<FireBallSpell>(1, 10, 2);
+        Register<FireBallSpell>(1, 3, 0.2f);
     }
 
     public CastSystem(ReferenceHub hub)
@@ -52,10 +52,17 @@ public class CastSystem
         spell = null;
 
         if (Canalise != null)
+        {
+            Logger.Info("in canalise");
             return false;
+        }
+            
 
         if (InCooldown(id))
+        {
+            Logger.Info("in Cooldown");
             return false;
+        }         
 
         if (!spells.TryGetValue(id, out var info))
 #if !DEBUG
@@ -71,7 +78,11 @@ public class CastSystem
 #endif
 
         if (mana.CurValue < info.cost)
+        {
+            Logger.Info($"pas de mana {mana.CurValue}");
             return false;
+        }
+        
 
         mana.CurValue -= info.cost;
         var cooldown = new CoolDown(info.cooldownSecond);

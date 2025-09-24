@@ -29,7 +29,7 @@ internal class MagicPlugin : Plugin
         MagicUserSettings.Register();
         ManaStat.Register();
 
-        CoolDown cd = new CoolDown(10);
+        /*CoolDown cd = new CoolDown(10);
         Timing.CallDelayed(12, () =>
         {
             cd.Start();
@@ -45,7 +45,7 @@ internal class MagicPlugin : Plugin
             {
                 Logger.Info(cd.IsActive);
             });
-        });
+        });*/
 
     }
 
