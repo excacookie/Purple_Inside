@@ -18,7 +18,7 @@ internal class FireBallSpell : Spell
     public Color FireBallLightColor = DefaultFireBallLightColor;
     public int Speed = 20;
     public float LiftTime = 5;
-    public float Size = 1;
+    public float Size = 0.25f;
     
     // TODO: Changer avec le styeme de particule
     private LightSourceToy? _castedLight;
@@ -37,6 +37,10 @@ internal class FireBallSpell : Spell
         var ball = PrimitiveObjectToy.Create(GetPositionCameraForward(Caster.Hub), networkSpawn: false);
         ball.Type = PrimitiveType.Sphere;
         ball.Color = FireBallColor;
+
+        // Appliquer la taille à l'échelle de l'objet
+        ball.Transform.localScale = new Vector3(Size, Size, Size); // Ajuste la taille de la boule de feu
+
         ball.MovementSmoothing = 128; // Fine
         ball.GameObject.layer = LayerMask.GetMask("Grenade");
         ball.Spawn();
