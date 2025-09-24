@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace Magic.Spells;
 
-internal class FireBallSpell : Spell
+internal class ExplosiveBallSpell : Spell
 {
-    public static readonly Color DefaultFireBallColor = new Color(1, 0, 0, 1f);
-    public static readonly Color DefaultFireBallLightColor = new Color(1f, 0f, 0, 0.5f);
+    public static Color ExplosiveBallColor = new Color(1, 0, 0, 0.5f);
+    public static Color ExplosiveBallLightColor = new Color(0.75f, 0.5f, 0, 0.5f);
 
-    public Color FireBallColor = DefaultFireBallColor;
-    public Color FireBallLightColor = DefaultFireBallLightColor;
-    public int Speed = 20;
+    public Color FireBallColor = ExplosiveBallColor;
+    public Color FireBallLightColor = ExplosiveBallLightColor;
+    public int Speed = 10;
     public float LiftTime = 5;
     public float Size = 1;
     
@@ -36,24 +36,31 @@ internal class FireBallSpell : Spell
     {
         var ball = PrimitiveObjectToy.Create(GetPositionCameraForward(Caster.Hub), networkSpawn: false);
         ball.Type = PrimitiveType.Sphere;
-        ball.Color = FireBallColor;
-        ball.MovementSmoothing = 128; // Fine
+        ball.Color = ExplosiveBallColor;
+        //ball.MovementSmoothing = byte.MaxValue; // BUGGED :) 
+        ball.MovementSmoothing = 160; // Fine
         ball.GameObject.layer = LayerMask.GetMask("Grenade");
         ball.Spawn();
 
         var light = LightSourceToy.Create(ball.Transform, false);
         light.Intensity = 1;
-        light.Range = Size;
-        light.Color = FireBallLightColor;
+        light.Color = ExplosiveBallLightColor;
         light.ShadowType = LightShadows.None;
         light.Spawn();
 
-        _coilider = ball.GameObject.AddComponent<SphereCollider>();
-        _coilider.radius = 0.01f * Size;
+        var collider = ball.GameObject.AddComponent<SphereCollider>();
+        collider.radius = 0.25f; // Fine
 
         var rigidbody = ball.GameObject.AddComponent<Rigidbody>();
         rigidbody.useGravity = false; // Fireballs typically don't fall
         rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous; // For fast-moving objects
+
+        var gravityScript = ball.GameObject.AddComponent<CustomGravity>();
+        gravityScript.GravityDirection = Vector3.down;
+        gravityScript.GravityStrength = 5.81f; // Ajuste comme tu veux
+
+        
+
         rigidbody.AddForce(Caster.Hub.PlayerCameraReference.forward * Speed, ForceMode.VelocityChange);
 
         var explodeScript = ball.GameObject.AddComponent<ExploxeCollide>();

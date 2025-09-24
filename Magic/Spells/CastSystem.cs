@@ -24,6 +24,7 @@ public class CastSystem
         PlayerRoleManager.OnRoleChanged += OnClassChanged;
         // Register<>();
         Register<FireBallSpell>(1, 3, 0.2f);
+        Register<ExplosiveBallSpell>(2, 50, 10f);
     }
 
     public CastSystem(ReferenceHub hub)

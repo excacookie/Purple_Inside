@@ -79,9 +79,18 @@ public static class MagicUserSettings
                 if (setting is SSKeybindSetting { SyncIsPressed: true })
                 {
                     if (BusyCasting.Contains(sender)) return;
-                    var speed = 10;
-                    CastHelper.ExplosivBall(GetPositionCameraForward(sender), sender.PlayerCameraReference.forward, speed, sender);
-                    Logger.Info($"La boule explosive de {sender.GetNickname()} à été envoyer en {GetPositionCameraForward(sender)}");
+                    //var speed = 10;
+                    //CastHelper.ExplosivBall(GetPositionCameraForward(sender), sender.PlayerCameraReference.forward, speed, sender);
+
+                    if (sender.GetCastSystem().TryCast(2, out _))
+                    {
+                        Logger.Info($"La boule explosive de {sender.GetNickname()} à été envoyer en {GetPositionCameraForward(sender)}");
+                    }
+                    else
+                    {
+                        Logger.Info("Le sort n'est pas parti");
+                    }
+                    
                 }
                 break;
 
