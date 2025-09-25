@@ -38,7 +38,7 @@ internal class ExplosiveBallSpell : Spell
         ball.Type = PrimitiveType.Sphere;
         ball.Color = ExplosiveBallColor;
         //ball.MovementSmoothing = byte.MaxValue; // BUGGED :) 
-        ball.MovementSmoothing = 160; // Fine
+        ball.MovementSmoothing = 200; // Fine
         ball.GameObject.layer = LayerMask.GetMask("Grenade");
         ball.Spawn();
 

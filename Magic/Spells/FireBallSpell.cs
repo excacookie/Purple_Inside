@@ -41,7 +41,7 @@ internal class FireBallSpell : Spell
         // Appliquer la taille à l'échelle de l'objet
         ball.Transform.localScale = new Vector3(Size, Size, Size); // Ajuste la taille de la boule de feu
 
-        ball.MovementSmoothing = 128; // Fine
+        ball.MovementSmoothing = 200; // Fine
         ball.GameObject.layer = LayerMask.GetMask("Grenade");
         ball.Spawn();
 

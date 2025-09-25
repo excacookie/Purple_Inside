@@ -56,7 +56,7 @@ internal class ManaShow
                 Logger.Error($"Erreur dans CheckManaCoroutine : {ex}");
             }
 
-            yield return Timing.WaitForSeconds(0.5f);
+            yield return Timing.WaitForSeconds(1f);
         }
     }
 }
