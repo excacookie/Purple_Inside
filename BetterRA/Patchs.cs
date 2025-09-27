@@ -1,4 +1,5 @@
 ﻿using BetterRA.Category;
+using CentralAuth;
 using CommandSystem;
 using CommandSystem.Commands.RemoteAdmin;
 using MapGeneration;
@@ -26,22 +27,25 @@ public static class Patchs
             if (args.Length != 2) return false;
             if (!int.TryParse(args[0], out var number)) return false;
 
-            if (!sender.TryGetHub(out var senderHub))
-                return false;
+            var playerSender = sender as PlayerCommandSender;
 
-            var arg = args[1].Split('.')[0];
-            if (int.TryParse(arg, out var categoryId))
+            if (playerSender != null)
             {
-                var category = RaCategoryService.GetCategory(categoryId);
-                if (category != null && category.CanSeeCategory(senderHub!))
+                var arg = args[1].Split('.')[0];
+                if (int.TryParse(arg, out var categoryId))
                 {
-                    sender.RaReply("$1 " + category.GetInfo(sender, number == 0), true, true, string.Empty);
-                    return false;
+                    // We store category id in the RA in negative to not mess with players
+                    // Old game can't handle string only int
+                    var category = RaCategoryService.GetCategory(-categoryId);
+                    if (category != null && category.CanSeeCategory(playerSender.ReferenceHub))
+                    {
+                        sender.RaReply("$1 " + category.GetInfo(sender, number == 0), true, true, string.Empty);
+                        return false;
+                    }
                 }
-            }
+            }    
 
             var requestSensitiveData = number == 0;
-            var playerSender = sender as PlayerCommandSender;
 
             if (requestSensitiveData && playerSender != null)
             {
@@ -172,7 +176,7 @@ public static class Patchs
             var seeHidden = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenBadges);
             var seeGlobal = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenGlobalBadges);
 
-            if (playerSender != null)
+            if (playerSender != null && playerSender.ReferenceHub.authManager.NorthwoodStaff)
             {
                 seeHidden = true;
                 seeGlobal = true;
@@ -263,6 +267,10 @@ public static class Patchs
                         message += "None";
                         break;
 
+                    case RoleTypeId.Filmmaker:
+                        message += "Filmmaker";
+                        break;w
+
                     case RoleTypeId.Spectator:
                         message += "Spectator";
                         break;
@@ -278,8 +286,7 @@ public static class Patchs
                         foreach (var additionalStats in player.playerStats.StatModules)
                         {
                             if (additionalStats is not IRaDisplayedStat displayedStat) continue;
-                            message += " <color=#977dff>[" + displayedStat.Color + ": " + GetRoundedStat(additionalStats).ToString() + 
-                                       "]</color>";
+                            message += $" <color={displayedStat.Color}>[{displayedStat.Prefix}: {GetRoundedStat(additionalStats).ToString()}]</color>";
                         }
 
                         message += "\nTeam: " + player.GetTeam();
@@ -380,5 +387,264 @@ public static class Patchs
         response = "Initiated communication with external server.";
         return true;
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(RAUtils), nameof(RAUtils.ProcessPlayerIdOrNamesList))]
+    public static bool OnGettingPlayers(ArraySegment<string> args, int startindex, out string[]? newargs,
+        bool keepEmptyEntries, out List<ReferenceHub>? __result)
+    {
+        try
+        {
+            newargs = null;
+            __result = new List<ReferenceHub>();
+            try
+            {
+                newargs = args.Count > 1
+                    ? RAUtils.FormatArguments(args, startindex + 1).Split(new[] { ' ' },
+                        keepEmptyEntries ? StringSplitOptions.None : StringSplitOptions.RemoveEmptyEntries)
+                    : null;
+
+                if (args.Count <= startindex) return false;
+
+                var info = args.At(startindex);
+
+                if (info.Length == 0) return false;
+
+                if (PlayerService.TryGetPlayers(info, out var players))
+                {
+                    __result = players.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Better RA: RemoteAdmin GetPlayers failed\n" + ex);
+            }
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("Better RA: Select Player Patch failed\n" + ex);
+            newargs = null;
+            __result = null;
+            return true;
+        }
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(RaPlayerList), nameof(RaPlayerList.ReceiveData), typeof(CommandSender), typeof(string))]
+    public static bool OnReceiveData(RaPlayerList __instance, CommandSender sender, string data)
+    {
+        try
+        {
+            var args = data.Split(' ');
+            if (args.Length != 3) return false;
+            if (!int.TryParse(args[0], out var number) || !int.TryParse(args[1], out var sortingNumber)) return false;
+            if (!Enum.IsDefined(typeof(RaPlayerList.PlayerSorting), sortingNumber)) return false;
+
+            var logRequest = number != 1;
+            var sortingType = (RaPlayerList.PlayerSorting)sortingNumber;
+            var sortListDescending = args[2] == "1";
+
+            var viewHiddenBadges = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenBadges);
+            var viewGlobalBadges = CommandProcessor.CheckPermissions(sender, PlayerPermissions.ViewHiddenGlobalBadges);
+            var playerSender = sender as PlayerCommandSender;
+
+            if (playerSender != null && playerSender.ReferenceHub.authManager.NorthwoodStaff)
+            {
+                viewHiddenBadges = true;
+                viewGlobalBadges = true;
+            }
+
+            var players = new List<RemoteAdminPlayer>();
+            var dummies = new List<RemoteAdminPlayer>();
+
+            foreach (var hub in sortListDescending
+                         ? __instance.SortPlayersDescending(sortingType)
+                         : __instance.SortPlayers(sortingType))
+            {
+                if (hub.Mode 
+                    is not ClientInstanceMode.ReadyClient 
+                    and not ClientInstanceMode.Host
+                    and not ClientInstanceMode.Dummy) continue;
+
+                var element = new RemoteAdminPlayer
+                {
+                    Player = hub
+                };
+
+                if (hub.IsDummy)
+                    dummies.Add(element);
+                else
+                    players.Add(element);
+
+                var badgeText = RaPlayerList.GetPrefix(hub, viewHiddenBadges, viewGlobalBadges);
+                var overWatchText = hub.serverRoles.IsInOverwatch ? RaPlayerList.OverwatchBadge : string.Empty;
+
+                element.Text = badgeText + overWatchText + "<color={RA_ClassColor}>(" +
+                               hub.PlayerId + ") " +
+                               hub.nicknameSync.CombinedName.Replace("\n", "").Replace("RA_", string.Empty) +
+                               "</color>";
+
+                // if (!string.IsNullOrWhiteSpace(hub.CustomRemoteAdminBadge))
+                //     element.Text = hub.CustomRemoteAdminBadge + " " + element.Text;
+            }
+
+            sender.RaReply("$0 " + GenerateList(players, dummies, sender), true, logRequest, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("BetterRA: RemoteAdmin Receive List failed\n" + ex);
+        }
+
+        return false;
+    }
+
+    private static string GenerateList(List<RemoteAdminPlayer> players, List<RemoteAdminPlayer> dummies, CommandSender sender)
+    {
+        var remoteAdminGroups = ServerStatic.PermissionsHandler.Groups.Select(x => new RemoteAdminGroup
+        {
+            Name = x.Key,
+            GroupId = x.Key,
+            Color = string.IsNullOrWhiteSpace(x.Value.BadgeColor) ||
+                    string.Equals(x.Value.BadgeColor, "none", StringComparison.OrdinalIgnoreCase)
+                ? "white"
+                : x.Value.BadgeColor
+        }).ToList();
+
+        var text = "\n";
+        var categories = RaCategoryService.RemoteAdminCategories;
+        var playerSender = sender as PlayerCommandSender;
+
+        var groupPlayers = players.ToList();
+
+        foreach (var entry in players)
+        {
+            var group = remoteAdminGroups.FirstOrDefault(x => x.GroupId == entry.Player?.serverRoles.Group.Name);
+            if (group == null) continue;
+
+            group.Members.Add(entry);
+            groupPlayers.Remove(entry);
+        }
+
+        if (playerSender != null)
+        {
+            foreach (var category in categories)
+            {
+                if (!category.DisplayOnTop || !category.CanSeeCategory(playerSender.ReferenceHub)) continue;
+
+                text += CategoryText(players, category);
+            }
+        }
+
+        foreach (var group in remoteAdminGroups)
+        {
+            if (group.Members.Count == 0) continue;
+
+            var color = group.Color;
+            // if (string.Equals(color, "rainbow", StringComparison.OrdinalIgnoreCase))
+            // {
+            //     var colors = ServerService.Colors;
+            //     color = colors.ElementAt(Random.Range(0, colors.Count)).Value;
+            // }
+            // else
+            {
+                color = GetColorHexCode(color);
+            }
+
+            text += "<align=center><size=0>(-" + group.GroupId + ")</size> <size=20><color=" + color + ">[" +
+                    group.Name +
+                    "]</color></size>\n</align>";
+
+            foreach (var player in group.Members)
+            {
+                text += player.Text + "\n";
+            }
+        }
+
+        if (groupPlayers.Any())
+            text += "<align=center><size=0>(default)</size> <size=20>[Default Player]</size></align>\n";
+
+        foreach (var player in groupPlayers)
+        {
+            text += player.Text + "\n";
+        }
+
+        if (dummies.Any())
+            text += "<align=center><size=0>(dummy)</size> <size=20>[Dummy]</size></align>\n";
+
+        foreach (var dummy in dummies)
+        {
+            text += dummy.Text + "\n";
+        }
+
+        if (playerSender != null)
+        {
+            foreach (var category in categories)
+            {
+                if (category.DisplayOnTop || !category.CanSeeCategory(playerSender.ReferenceHub)) continue;
+
+                text += CategoryText(players, category);
+            }
+        }
+
+        return text;
+    }
+
+    private static string CategoryText(List<RemoteAdminPlayer> players, RaCategory category)
+    {
+        var color = category.Attribute.Color;
+
+        // if (string.Equals(color, "rainbow", StringComparison.OrdinalIgnoreCase))
+        // {
+        //     var colors = ServerService.Colors;
+        //     color = colors.ElementAt(Random.Range(0, colors.Count)).Value;
+        // }
+
+        var text = $"<align=center><size=0>(-{category.Attribute.Id})</size> " +
+            $"<size={category.Attribute.Size}></color>" +
+            $"<color={color}>{category.Attribute.Name}</color></size>\n</align>";
+
+        bool displayPlayerMultipleTimes = true;
+        if (displayPlayerMultipleTimes)
+        {
+            var categoryPlayers = category.GetPlayers();
+            if (categoryPlayers != null)
+            {
+                foreach (var player in categoryPlayers)
+                {
+                    var raPlayer = players.FirstOrDefault(x => x.Player == player);
+                    if (raPlayer != null)
+                        text += raPlayer.Text + "\n";
+                }
+            }
+        }
+
+        return text;
+    }
+
+    private class RemoteAdminPlayer
+    {
+        public ReferenceHub? Player { get; set; }
+
+        public string? Text { get; set; }
+    }
+
+    private class RemoteAdminGroup
+    {
+        public string? Name { get; set; }
+
+        public List<RemoteAdminPlayer> Members { get; } = new();
+
+        public string? GroupId { get; set; }
+
+        public string? Color { get; set; }
+    }
+
+    // help
+
+    public static string GetColorHexCode(string color) => !Enum.TryParse(color, true, out Misc.PlayerInfoColorTypes colorEnum)
+         ? Misc.AllowedColors[Misc.PlayerInfoColorTypes.White]
+         : Misc.AllowedColors[colorEnum];
 }
 
