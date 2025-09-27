@@ -9,7 +9,9 @@ namespace BetterRA.Category;
 
 public abstract class RaCategory
 {
+#pragma warning disable CS8618 // Un champ non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le champ comme pouvant accepter la valeur Null.
     public RaCategoryAttribute Attribute { get; set; }
+#pragma warning restore CS8618 // Un champ non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le champ comme pouvant accepter la valeur Null.
 
     public abstract string GetInfo(CommandSender sender, bool secondPage);
 

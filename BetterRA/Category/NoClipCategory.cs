@@ -16,6 +16,8 @@ namespace BetterRA.Category;
 )]
 public class NoClipCategory : RaCategory
 {
+    public override bool DisplayOnTop => false;
+
     public override string GetInfo(CommandSender sender, bool secondPage)
     {
         var text = "<color=white>Selects all Players that are currently NoClipping:\n";
@@ -27,9 +29,8 @@ public class NoClipCategory : RaCategory
         return text + "</color>";
     }
 
-    public override List<ReferenceHub> GetPlayers() => ReferenceHub.AllHubs.Where(p => p.playerStats.GetModule<AdminFlagsStat>().HasFlag(AdminFlags.Noclip)).ToList();
+    public override List<ReferenceHub> GetPlayers() => ReferenceHub.AllHubs.Where(IsNoclingEnable).ToList();
+    public override bool CanSeeCategory(ReferenceHub player) => ReferenceHub.AllHubs.Any(IsNoclingEnable);
 
-    public override bool DisplayOnTop => false;
-
-    public override bool CanSeeCategory(ReferenceHub player) => ReferenceHub.AllHubs.Any(p => p.playerStats.GetModule<AdminFlagsStat>().HasFlag(AdminFlags.Noclip));
+    public bool IsNoclingEnable(ReferenceHub player) => player.playerStats.GetModule<AdminFlagsStat>().HasFlag(AdminFlags.Noclip);
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PlayerStatsSystem;
+﻿using PlayerStatsSystem;
 
 namespace BetterRA.Category;
 
@@ -15,6 +10,8 @@ namespace BetterRA.Category;
     )]
 public class OverWatchCategory : RaCategory
 {
+    public override bool DisplayOnTop => false;
+
     public override string GetInfo(CommandSender sender, bool secondPage)
     {
         var text = "<color=white>Selects all Players that are currently in OverWatch:\n";
@@ -27,9 +24,7 @@ public class OverWatchCategory : RaCategory
         return text + "</color>";
     }
 
-    public override List<ReferenceHub> GetPlayers() => ReferenceHub.AllHubs.Where(p => p.playerStats.GetModule<AdminFlagsStat>().HasFlag(AdminFlags.Noclip)).ToList();
-
-    public override bool DisplayOnTop => false;
-
-    public override bool CanSeeCategory(ReferenceHub player) => ReferenceHub.AllHubs.Any(p => p.playerStats.GetModule<AdminFlagsStat>().HasFlag(AdminFlags.Noclip));
+    public override List<ReferenceHub> GetPlayers() => ReferenceHub.AllHubs.Where(IsOvewatch).ToList();
+    public override bool CanSeeCategory(ReferenceHub player) => ReferenceHub.AllHubs.Any(IsOvewatch);
+    private bool IsOvewatch(ReferenceHub player) => player.serverRoles.IsInOverwatch;
 }

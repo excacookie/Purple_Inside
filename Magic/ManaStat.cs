@@ -26,7 +26,7 @@ public class ManaStat : StatBase, IRaDisplayedStat
 
     public override float MinValue => 0;
 
-    public string Color => "3142E0";
+    public string Color => "#3142E0";
 
     public string Prefix => "MP";
     #endregion

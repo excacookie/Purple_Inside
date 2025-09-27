@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BetterRA.Category;
+﻿namespace BetterRA.Category;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public class RaCategoryAttribute : Attribute
