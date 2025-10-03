@@ -8,8 +8,12 @@ namespace BetterRA.Category;
 
 public static class RaCategoryService
 {
-    public static void Register()
+    private static bool registered = false;
+
+    internal static void Register()
     {
+        if (registered) return;
+        registered = true;
         RegisterCategory<OverWatchCategory>();
         RegisterCategory<GodModeCategory>();
         RegisterCategory<NoClipCategory>();

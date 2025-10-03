@@ -269,7 +269,7 @@ public static class Patchs
 
                     case RoleTypeId.Filmmaker:
                         message += "Filmmaker";
-                        break;w
+                        break;
 
                     case RoleTypeId.Spectator:
                         message += "Spectator";

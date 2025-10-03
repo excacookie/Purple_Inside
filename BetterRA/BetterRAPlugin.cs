@@ -33,7 +33,7 @@ internal class BetterRAPlugin : Plugin
 
     public override void Disable()
     {
-
+        Harmony.UnpatchAll(Harmony.Id);
     }
     #endregion
 }
